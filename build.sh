@@ -5,5 +5,5 @@ pip install -r requirements.txt
 python manage.py collectstatic --noinput
 python manage.py migrate
 
-echo "--- Seeding database ---"
+echo '--- Seeding database ---'
 python seed.py
