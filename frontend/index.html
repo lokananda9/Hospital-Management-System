@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hospital Management System</title>
+<meta name="description" content="Hospital Management System - Manage doctors, patients, appointments, prescriptions and billing">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0e1a;--bg2:#111827;--bg3:#1e293b;--bg4:#293548;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;--primary:#6366f1;--primary-h:#818cf8;--primary-d:#4f46e5;--success:#22c55e;--warn:#f59e0b;--danger:#ef4444;--info:#3b82f6;--glass:rgba(30,41,59,.7);--border:rgba(99,102,241,.15);--radius:12px;--shadow:0 8px 32px rgba(0,0,0,.3)}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+a{color:var(--primary-h);text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;outline:none}
+input,select,textarea{font-family:inherit;outline:none;border:1px solid var(--border);background:var(--bg2);color:var(--text);padding:10px 14px;border-radius:8px;font-size:.9rem;transition:.2s;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,.15)}
+textarea{resize:vertical;min-height:80px}
+
+/* LOGIN */
+#login-page{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#0a0e1a 0%,#1a1040 50%,#0a0e1a 100%)}
+.login-card{background:var(--glass);backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:20px;padding:40px;width:440px;max-width:92vw;box-shadow:var(--shadow);animation:fadeUp .5s ease}
+.login-card h1{font-size:1.5rem;font-weight:700;text-align:center;margin-bottom:4px;background:linear-gradient(135deg,var(--primary-h),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.login-card p{text-align:center;color:var(--text2);margin-bottom:24px;font-size:.85rem}
+.login-card .logo{text-align:center;margin-bottom:16px;font-size:2.2rem;color:var(--primary-h)}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.btn{padding:11px 22px;border-radius:8px;font-weight:600;font-size:.88rem;transition:.25s;display:inline-flex;align-items:center;gap:8px;justify-content:center}
+.btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-d));color:#fff;width:100%}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(99,102,241,.35)}
+.btn-sm{padding:7px 14px;font-size:.78rem;border-radius:6px}
+.btn-success{background:var(--success);color:#fff}.btn-danger{background:var(--danger);color:#fff}
+.btn-info{background:var(--info);color:#fff}.btn-warn{background:var(--warn);color:#fff}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--primary);color:var(--primary-h)}
+.btn-outline{background:transparent;border:1px solid var(--primary);color:var(--primary-h);width:100%}
+.btn-outline:hover{background:rgba(99,102,241,.1)}
+.error-msg{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#f87171;padding:10px 14px;border-radius:8px;font-size:.82rem;margin-bottom:14px;display:none}
+.success-msg{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#4ade80;padding:10px 14px;border-radius:8px;font-size:.82rem;margin-bottom:14px;display:none}
+.tab-row{display:flex;gap:0;margin-bottom:20px;background:var(--bg3);border-radius:10px;padding:4px}
+.tab-btn{flex:1;padding:10px;text-align:center;border-radius:8px;font-size:.85rem;font-weight:600;color:var(--text3);cursor:pointer;transition:.2s;border:none;background:transparent}
+.tab-btn.active{background:var(--primary);color:#fff}
+
+/* APP */
+#app-page{display:none}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:250px;background:var(--bg2);border-right:1px solid var(--border);padding:16px 0;display:flex;flex-direction:column;z-index:100}
+.sidebar .brand{padding:0 20px;margin-bottom:28px;display:flex;align-items:center;gap:10px}
+.sidebar .brand i{font-size:1.6rem;color:var(--primary-h)}
+.sidebar .brand span{font-size:1rem;font-weight:700;background:linear-gradient(135deg,var(--primary-h),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 20px;color:var(--text2);font-size:.85rem;font-weight:500;transition:.2s;cursor:pointer;border-left:3px solid transparent}
+.nav-item:hover{background:rgba(99,102,241,.08);color:var(--text)}
+.nav-item.active{color:var(--primary-h);background:rgba(99,102,241,.1);border-left-color:var(--primary)}
+.nav-item i{width:18px;text-align:center}
+.sidebar-footer{margin-top:auto;padding:14px 20px;border-top:1px solid var(--border)}
+.user-info{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--primary),#a78bfa);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:#fff;flex-shrink:0}
+.user-name{font-size:.82rem;font-weight:600}.user-role{font-size:.68rem;color:var(--text3);text-transform:uppercase}
+.main{margin-left:250px;padding:20px 28px;min-height:100vh}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.page-header h2{font-size:1.35rem;font-weight:700}
+.page-header h2 i{margin-right:8px;color:var(--primary-h)}
+
+/* CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px}
+.stat-card{background:var(--glass);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:.3s}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.stat-card .label{font-size:.72rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.stat-card .value{font-size:1.8rem;font-weight:800;background:linear-gradient(135deg,var(--primary-h),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat-card .icon{float:right;font-size:1.2rem;color:var(--primary);opacity:.5}
+
+/* TABLE */
+.table-card{background:var(--glass);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:var(--radius);overflow-x:auto}
+.table-card table{width:100%;border-collapse:collapse;min-width:600px}
+.table-card th{background:var(--bg3);padding:12px 14px;text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);font-weight:600}
+.table-card td{padding:10px 14px;border-top:1px solid var(--border);font-size:.82rem;color:var(--text2)}
+.table-card tr:hover td{background:rgba(99,102,241,.04)}
+.badge{padding:3px 9px;border-radius:20px;font-size:.68rem;font-weight:600;text-transform:uppercase;white-space:nowrap}
+.badge-success{background:rgba(34,197,94,.15);color:#4ade80}
+.badge-warn{background:rgba(245,158,11,.15);color:#fbbf24}
+.badge-danger{background:rgba(239,68,68,.15);color:#f87171}
+.badge-info{background:rgba(59,130,246,.15);color:#60a5fa}
+.empty-state{text-align:center;padding:40px;color:var(--text3)}
+.empty-state i{font-size:2.5rem;margin-bottom:10px;opacity:.3;display:block}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:200}
+.modal-overlay.show{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px;width:500px;max-width:92vw;max-height:85vh;overflow-y:auto;animation:fadeUp .3s ease}
+.modal h3{font-size:1.05rem;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.modal h3 i{color:var(--primary-h)}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+
+/* Doctor select card */
+.doctor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:20px}
+.doctor-card{background:var(--bg3);border:2px solid var(--border);border-radius:var(--radius);padding:20px;cursor:pointer;transition:.3s}
+.doctor-card:hover{border-color:var(--primary);transform:translateY(-2px)}
+.doctor-card.selected{border-color:var(--primary);background:rgba(99,102,241,.1)}
+.doctor-card h4{font-size:.95rem;margin-bottom:4px;color:var(--text)}
+.doctor-card .spec{color:var(--primary-h);font-size:.8rem;margin-bottom:8px}
+.doctor-card .details{font-size:.78rem;color:var(--text3)}
+
+.toast{position:fixed;top:20px;right:20px;padding:12px 18px;border-radius:10px;font-size:.82rem;font-weight:500;z-index:300;animation:fadeUp .3s;display:none;max-width:400px}
+.toast.success{background:rgba(34,197,94,.9);color:#fff;display:block}
+.toast.error{background:rgba(239,68,68,.9);color:#fff;display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.loading{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN PAGE ===== -->
+<div id="login-page">
+<div class="login-card">
+  <div class="logo"><i class="fas fa-hospital"></i></div>
+  <h1>Hospital Management System</h1>
+  <p id="login-subtitle">Sign in to access your dashboard</p>
+  <div class="tab-row">
+    <div class="tab-btn active" onclick="switchAuthTab('login')">Sign In</div>
+    <div class="tab-btn" onclick="switchAuthTab('signup')">Patient Signup</div>
+  </div>
+  <div id="auth-error" class="error-msg"></div>
+  <div id="auth-success" class="success-msg"></div>
+
+  <!-- Login Form -->
+  <div id="login-form">
+    <div class="form-group"><label>Email Address</label><input type="email" id="login-email" placeholder="you@example.com"></div>
+    <div class="form-group"><label>Password</label><input type="password" id="login-pass" placeholder="Enter your password"></div>
+    <button class="btn btn-primary" id="login-btn" onclick="doLogin()"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+  </div>
+
+  <!-- Signup Form -->
+  <div id="signup-form" style="display:none">
+    <div class="form-group"><label>Full Name</label><input id="s-name" placeholder="John Doe"></div>
+    <div class="form-group"><label>Email Address</label><input type="email" id="s-email" placeholder="you@example.com"></div>
+    <div class="form-group"><label>Phone</label><input id="s-phone" placeholder="+91 9876543210"></div>
+    <div class="form-group"><label>Password (min 8 chars)</label><input type="password" id="s-pass" placeholder="Create a strong password"></div>
+    <button class="btn btn-primary" onclick="doSignup()"><i class="fas fa-user-plus"></i> Create Account</button>
+  </div>
+</div>
+</div>
+
+<!-- ===== APP PAGE ===== -->
+<div id="app-page">
+<aside class="sidebar" id="sidebar"></aside>
+<main class="main" id="main-content"></main>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="event.target===this&&closeModal()">
+<div class="modal"><h3 id="modal-title"><i class="fas fa-plus-circle"></i><span></span></h3><div id="modal-body"></div>
+<div class="modal-actions"><button class="btn btn-ghost btn-sm" onclick="closeModal()">Cancel</button><button class="btn btn-primary btn-sm" id="modal-submit">Save</button></div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const API='/api/v1';
+let token=localStorage.getItem('hms_token'),refreshToken=localStorage.getItem('hms_refresh'),currentUser=null;
+
+// ====== AUTH ======
+function switchAuthTab(tab){
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===(tab==='login'?0:1)));
+  document.getElementById('login-form').style.display=tab==='login'?'block':'none';
+  document.getElementById('signup-form').style.display=tab==='signup'?'block':'none';
+  document.getElementById('login-subtitle').textContent=tab==='login'?'Sign in to access your dashboard':'Create a new patient account';
+  hideMsg();
+}
+function hideMsg(){const e=document.getElementById('auth-error'),s=document.getElementById('auth-success');e.style.display='none';s.style.display='none'}
+function showErr(m){const e=document.getElementById('auth-error');e.textContent=m;e.style.display='block';document.getElementById('auth-success').style.display='none'}
+function showSuc(m){const s=document.getElementById('auth-success');s.textContent=m;s.style.display='block';document.getElementById('auth-error').style.display='none'}
+
+async function doLogin(){
+  hideMsg();
+  const email=document.getElementById('login-email').value.trim();
+  const pass=document.getElementById('login-pass').value;
+  if(!email||!pass){showErr('Please enter email and password');return}
+  try{
+    const r=await fetch(`${API}/auth/login/`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:pass})});
+    const d=await r.json();
+    if(!r.ok) throw new Error(d.detail||'Invalid email or password');
+    token=d.access;refreshToken=d.refresh;
+    localStorage.setItem('hms_token',token);localStorage.setItem('hms_refresh',refreshToken);
+    await enterApp();
+  }catch(e){showErr(e.message)}
+}
+
+async function doSignup(){
+  hideMsg();
+  const name=document.getElementById('s-name').value.trim(),email=document.getElementById('s-email').value.trim(),phone=document.getElementById('s-phone').value.trim(),pass=document.getElementById('s-pass').value;
+  if(!name||!email||!pass){showErr('Please fill all required fields');return}
+  if(pass.length<8){showErr('Password must be at least 8 characters');return}
+  try{
+    const r=await fetch(`${API}/auth/signup/`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({full_name:name,email,phone,password:pass})});
+    const d=await r.json();
+    if(!r.ok){
+      // Extract first meaningful error
+      const msg=d.detail||d.email?.[0]||d.password?.[0]||d.full_name?.[0]||Object.values(d).flat()[0]||'Signup failed';
+      throw new Error(msg);
+    }
+    showSuc('Account created! You can now sign in.');
+    switchAuthTab('login');
+    document.getElementById('login-email').value=email;
+  }catch(e){showErr(e.message)}
+}
+
+document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+document.getElementById('s-pass')?.addEventListener('keydown',e=>{if(e.key==='Enter')doSignup()});
+
+function showLogin(){
+  token=null;refreshToken=null;currentUser=null;
+  localStorage.removeItem('hms_token');localStorage.removeItem('hms_refresh');
+  document.getElementById('login-page').style.display='flex';
+  document.getElementById('app-page').style.display='none';
+}
+function logout(){showLogin()}
+
+// ====== API HELPER ======
+async function api(path,opts={}){
+  const h={'Content-Type':'application/json',...opts.headers};
+  if(token)h['Authorization']=`Bearer ${token}`;
+  let r=await fetch(`${API}${path}`,{...opts,headers:h});
+  if(r.status===401&&refreshToken){
+    // Try to refresh the token
+    const ref=await fetch(`${API}/auth/refresh/`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({refresh:refreshToken})});
+    if(ref.ok){
+      const d=await ref.json();
+      token=d.access;
+      localStorage.setItem('hms_token',token);
+      h['Authorization']=`Bearer ${token}`;
+      r=await fetch(`${API}${path}`,{...opts,headers:h});
+    } else {
+      // Refresh token also expired — force re-login
+      showLogin();
+      return null;
+    }
+  }
+  return r;
+}
+
+// ====== ENTER APP ======
+async function enterApp(){
+  // First, verify token is valid by calling /auth/me/
+  try{
+    const r=await api('/auth/me/');
+    if(!r||!r.ok){
+      // Token is invalid and couldn't be refreshed
+      showLogin();
+      return;
+    }
+    currentUser=await r.json();
+  }catch(e){
+    showLogin();
+    return;
+  }
+
+  document.getElementById('login-page').style.display='none';
+  document.getElementById('app-page').style.display='block';
+  buildSidebar();
+
+  if(currentUser.role==='ADMIN') showPage('dashboard');
+  else if(currentUser.role==='DOCTOR') showPage('doc-appointments');
+  else showPage('pat-book');
+}
+
+function toast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast '+type;
+  setTimeout(()=>t.className='toast',4000);
+}
+function fmtDate(d){if(!d)return'-';return new Date(d).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'})}
+function statusBadge(s){const m={SCHEDULED:'info',COMPLETED:'success',CANCELLED:'danger',NO_SHOW:'warn',PAID:'success',PENDING:'warn',VOID:'danger'};return`<span class="badge badge-${m[s]||'info'}">${s}</span>`}
+
+// ====== BUILD SIDEBAR ======
+function buildSidebar(){
+  const role=currentUser.role;const sb=document.getElementById('sidebar');
+  let nav='';
+  if(role==='ADMIN'){
+    nav=`
+    <div class="nav-item active" data-page="dashboard" onclick="showPage('dashboard')"><i class="fas fa-th-large"></i>Dashboard</div>
+    <div class="nav-item" data-page="users" onclick="showPage('users')"><i class="fas fa-users-cog"></i>Users</div>
+    <div class="nav-item" data-page="doctors" onclick="showPage('doctors')"><i class="fas fa-user-md"></i>Doctors</div>
+    <div class="nav-item" data-page="patients" onclick="showPage('patients')"><i class="fas fa-procedures"></i>Patients</div>
+    <div class="nav-item" data-page="medicines" onclick="showPage('medicines')"><i class="fas fa-pills"></i>Medicines</div>
+    <div class="nav-item" data-page="appointments" onclick="showPage('appointments')"><i class="fas fa-calendar-check"></i>Appointments</div>
+    <div class="nav-item" data-page="prescriptions" onclick="showPage('prescriptions')"><i class="fas fa-prescription"></i>Prescriptions</div>
+    <div class="nav-item" data-page="invoices" onclick="showPage('invoices')"><i class="fas fa-file-invoice-dollar"></i>Invoices</div>
+    <div class="nav-item" data-page="admin-settings" onclick="showPage('admin-settings')"><i class="fas fa-cog"></i>Settings</div>`;
+  } else if(role==='DOCTOR'){
+    nav=`
+    <div class="nav-item active" data-page="doc-appointments" onclick="showPage('doc-appointments')"><i class="fas fa-calendar-check"></i>My Appointments</div>
+    <div class="nav-item" data-page="doc-prescriptions" onclick="showPage('doc-prescriptions')"><i class="fas fa-prescription"></i>Prescriptions</div>`;
+  } else {
+    nav=`
+    <div class="nav-item active" data-page="pat-book" onclick="showPage('pat-book')"><i class="fas fa-calendar-plus"></i>Book Appointment</div>
+    <div class="nav-item" data-page="pat-appointments" onclick="showPage('pat-appointments')"><i class="fas fa-calendar-check"></i>My Appointments</div>
+    <div class="nav-item" data-page="pat-prescriptions" onclick="showPage('pat-prescriptions')"><i class="fas fa-prescription"></i>My Prescriptions</div>
+    <div class="nav-item" data-page="pat-invoices" onclick="showPage('pat-invoices')"><i class="fas fa-file-invoice-dollar"></i>My Invoices</div>
+    <div class="nav-item" data-page="pat-profile" onclick="showPage('pat-profile')"><i class="fas fa-user-edit"></i>My Profile</div>`;
+  }
+  const initial=(currentUser.full_name||'U')[0].toUpperCase();
+  sb.innerHTML=`<div class="brand"><i class="fas fa-hospital"></i><span>HMS Portal</span></div>${nav}
+  <div class="sidebar-footer"><div class="user-info"><div class="user-avatar">${initial}</div><div><div class="user-name">${currentUser.full_name||currentUser.email}</div><div class="user-role">${role}</div></div></div>
+  <button class="btn btn-ghost btn-sm" style="width:100%" onclick="logout()"><i class="fas fa-sign-out-alt"></i>Logout</button></div>`;
+}
+
+// ====== PAGE ROUTER ======
+function showPage(name){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const navEl=document.querySelector(`.nav-item[data-page="${name}"]`);if(navEl)navEl.classList.add('active');
+  const mc=document.getElementById('main-content');
+  const loaders={
+    'dashboard':loadDashboard,'users':loadUsers,'doctors':loadDoctors,'patients':loadPatients,
+    'medicines':loadMedicines,'admin-settings':loadAdminSettings,
+    'appointments':loadAppointments,'prescriptions':loadPrescriptions,'invoices':loadInvoices,
+    'doc-appointments':loadDocAppointments,'doc-prescriptions':loadDocPrescriptions,
+    'pat-book':loadPatBook,'pat-appointments':loadPatAppointments,'pat-prescriptions':loadPatPrescriptions,
+    'pat-invoices':loadPatInvoices,'pat-profile':loadPatProfile
+  };
+  if(loaders[name])loaders[name](mc);
+}
+
+// Helper to extract friendly error message from API response
+function extractError(data){
+  if(typeof data==='string') return data;
+  if(data.detail) return data.detail;
+  if(data.non_field_errors) return data.non_field_errors.join(', ');
+  // Collect all field errors
+  const msgs=[];
+  for(const[k,v] of Object.entries(data)){
+    if(Array.isArray(v)) msgs.push(`${k}: ${v.join(', ')}`);
+    else if(typeof v==='string') msgs.push(`${k}: ${v}`);
+    else if(typeof v==='object') msgs.push(`${k}: ${JSON.stringify(v)}`);
+  }
+  return msgs.join(' | ')||'An error occurred';
+}
+
+// ============ ADMIN PAGES ============
+
+async function loadDashboard(mc){
+  mc.innerHTML='<div class="page-header"><h2><i class="fas fa-th-large"></i>Dashboard Overview</h2></div><div class="stats-grid" id="dash-stats"><div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--text3)"><span class="loading"></span></div></div>';
+  try{
+    const r=await api('/dashboard/overview/');if(!r||!r.ok)throw 0;const d=await r.json();
+    const ubr=d.users_by_role||{},abs=d.appointments_by_status||{};
+    document.getElementById('dash-stats').innerHTML=`
+      <div class="stat-card"><div class="icon"><i class="fas fa-users"></i></div><div class="label">Total Users</div><div class="value">${Object.values(ubr).reduce((a,b)=>a+b,0)}</div></div>
+      <div class="stat-card"><div class="icon"><i class="fas fa-user-md"></i></div><div class="label">Doctors</div><div class="value">${ubr.DOCTOR||0}</div></div>
+      <div class="stat-card"><div class="icon"><i class="fas fa-procedures"></i></div><div class="label">Patients</div><div class="value">${ubr.PATIENT||0}</div></div>
+      <div class="stat-card"><div class="icon"><i class="fas fa-calendar"></i></div><div class="label">Appointments</div><div class="value">${Object.values(abs).reduce((a,b)=>a+b,0)}</div></div>
+      <div class="stat-card" style="border-color:rgba(34,197,94,.3)"><div class="icon"><i class="fas fa-check-circle" style="color:var(--success)"></i></div><div class="label">Revenue (Paid)</div><div class="value" style="background:linear-gradient(135deg,#22c55e,#4ade80);-webkit-background-clip:text;-webkit-text-fill-color:transparent">₹${d.revenue_paid_total||0}</div><div style="font-size:.72rem;color:var(--text3);margin-top:4px">${d.paid_count||0} invoices paid</div></div>
+      <div class="stat-card" style="border-color:rgba(245,158,11,.3)"><div class="icon"><i class="fas fa-clock" style="color:var(--warn)"></i></div><div class="label">Pending Payments</div><div class="value" style="background:linear-gradient(135deg,#f59e0b,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent">₹${d.pending_amount||0}</div><div style="font-size:.72rem;color:var(--text3);margin-top:4px">${d.pending_count||0} invoices pending</div></div>
+      <div class="stat-card"><div class="icon"><i class="fas fa-file-invoice"></i></div><div class="label">Total Invoices</div><div class="value">${d.total_invoices||0}</div></div>`;
+  }catch(e){document.getElementById('dash-stats').innerHTML='<div class="stat-card" style="grid-column:1/-1;text-align:center">Could not load dashboard.</div>'}
+}
+
+async function loadUsers(mc){
+  mc.innerHTML='<div class="page-header"><h2><i class="fas fa-users-cog"></i>Users</h2><button class="btn btn-primary btn-sm" onclick="openUserModal()"><i class="fas fa-plus"></i>Add User</button></div><div class="table-card"><table><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead><tbody id="tbl"></tbody></table></div>';
+  const r=await api('/users/');if(!r)return;const d=await r.json();const tb=document.getElementById('tbl');
+  const list=Array.isArray(d)?d:(d.results||[]);
+  if(!list.length){tb.innerHTML='<tr><td colspan="6"><div class="empty-state"><i class="fas fa-users"></i>No users</div></td></tr>';return}
+  tb.innerHTML=list.map(u=>`<tr><td>${u.id}</td><td>${u.full_name||'-'}</td><td>${u.email}</td><td><span class="badge badge-info">${u.role}</span></td><td>${u.is_active?'<span class="badge badge-success">Active</span>':'<span class="badge badge-danger">Inactive</span>'}</td><td><button class="btn btn-sm ${u.is_active?'btn-warn':'btn-success'}" onclick="toggleUser(${u.id},${!u.is_active})">${u.is_active?'Deactivate':'Activate'}</button></td></tr>`).join('');
+}
+async function toggleUser(id,active){const r=await api(`/users/${id}/status/`,{method:'PATCH',body:JSON.stringify({is_active:active})});if(r&&r.ok)toast(active?'User activated':'User deactivated');showPage('users')}
+
+function openUserModal(){
+  openModal('Create User',`<div class="form-group"><label>Full Name</label><input id="m-name"></div><div class="form-group"><label>Email</label><input id="m-email" type="email"></div><div class="form-group"><label>Password</label><input id="m-pass" type="password"></div><div class="form-group"><label>Phone</label><input id="m-phone"></div><div class="form-group"><label>Role</label><select id="m-role"><option value="PATIENT">Patient</option><option value="DOCTOR">Doctor</option><option value="ADMIN">Admin</option></select></div>`,
+  async()=>{const r=await api('/users/',{method:'POST',body:JSON.stringify({full_name:v('m-name'),email:v('m-email'),password:v('m-pass'),phone:v('m-phone'),role:v('m-role')})});if(r&&r.ok){toast('User created');closeModal();showPage('users')}else if(r){const e=await r.json();toast(extractError(e),'error')}});
+}
+
+async function loadDoctors(mc){
+  mc.innerHTML='<div class="page-header"><h2><i class="fas fa-user-md"></i>Doctors</h2><button class="btn btn-primary btn-sm" onclick="openDoctorModal()"><i class="fas fa-plus"></i>Add Doctor</button></div><div class="table-card"><table><thead><tr><th>ID</th><th>Name</th><th>Specialization</th><th>License</th><th>Exp</th><th>Fee</th></tr></thead><tbody id="tbl"></tbody></table></div>';
+  const r=await api('/doctors/');if(!r)return;const d=await r.json();const tb=document.getElementById('tbl');
+  const list=Array.isArray(d)?d:(d.results||[]);
+  if(!list.length){tb.innerHTML='<tr><td colspan="6"><div class="empty-state"><i class="fas fa-user-md"></i>No doctors yet</div></td></tr>';return}
+  tb.innerHTML=list.map(doc=>`<tr><td>${doc.id}</td><td>${doc.user_name||'-'}</td><td>${doc.specialization}</td><td>${doc.license_number}</td><td>${doc.years_experience||0} yrs</td><td>₹${doc.consultation_fee||0}</td></tr>`).join('');
+}
+function openDoctorModal(){
+  openModal('Add Doctor (Admin Only)',`<p style="font-size:.8rem;color:var(--text3);margin-bottom:14px">First create a user with DOCTOR role from the Users page, then use the User ID here.</p><div class="form-group"><label>User ID</label><input id="m-user" type="number"></div><div class="form-group"><label>Specialization</label><input id="m-spec"></div><div class="form-group"><label>License Number</label><input id="m-lic"></div><div class="form-group"><label>Years Experience</label><input id="m-exp" type="number" value="0"></div><div class="form-group"><label>Consultation Fee (₹)</label><input id="m-fee" type="number" value="500"></div>`,
+  async()=>{const r=await api('/doctors/',{method:'POST',body:JSON.stringify({user:+v('m-user'),specialization:v('m-spec'),license_number:v('m-lic'),years_experience:+v('m-exp'),consultation_fee:v('m-fee')})});if(r&&r.ok){toast('Doctor added');closeModal();showPage('doctors')}else if(r){const e=await r.json();toast(extractError(e),'error')}});
+}
+
+async function loadPatients(mc){
+  mc.innerHTML='<div class="page-header"><h2><i class="fas fa-procedures"></i>Patients</h2></div><div class="table-card"><table><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>DOB</th><th>Gender</th><th>Blood</th><th>Contact</th></tr></thead><tbody id="tbl"></tbody></table></div>';
+  const r=await api('/patients/');if(!r)return;let d=await r.json();
+  const list=Array.isArray(d)?d:(d.results?d.results:[d]);
+  const tb=document.getElementById('tbl');
+  if(!list.length||list[0]?.detail){tb.innerHTML='<tr><td colspan="7"><div class="empty-state"><i class="fas fa-procedures"></i>No patients</div></td></tr>';return}
+  tb.innerHTML=list.map(p=>`<tr><td>${p.id}</td><td>${p.user_name||'-'}</td><td>${p.user_email||'-'}</td><td>${p.date_of_birth||'-'}</td><td>${p.gender||'-'}</td><td>${p.blood_group||'-'}</td><td>${p.emergency_contact||'-'}</td></tr>`).join('');
+}
+
+async function loadAppointments(mc){
+  mc.innerHTML='<div class="page-header"><h2><i class="fas fa-calendar-check"></i>All Appointments</h2></div><div class="table-card"><table><thead><tr><th>ID</th><th>Doctor</th><th>Patient</th><th>Start</th><th>Reason</th><th>Status</th><th>Actions</th></tr></thead><tbody id="tbl"></tbody></table></div>';
+  const r=await api('/appointments/');if(!r)return;const d=await r.json();const tb=document.getElementById('tbl');
+  const list=Array.isArray(d)?d:(d.results||[]);
+  if(!list.length){tb.innerHTML='<tr><td colspan="7"><div class="empty-state"><i class="fas fa-calendar"></i>No appointments</div></td></tr>';return}
+  tb.innerHTML=list.map(a=>`<tr><td>${a.id}</td><td>${a.doctor_name}</td><td>${a.patient_name}</td><td>${fmtDate(a.start_time)}</td><td>${(a.reason||'-').substring(0,30)}</td><td>${statusBadge(a.status)}</td><td>${a.status==='SCHEDULED'?`<button class="btn btn-sm btn-success" onclick="updAppt(${a.id},'COMPLETED')">✓</button> <button class="btn btn-sm btn-danger" onclick="updAppt(${a.id},'CANCELLED')">✕</button>`:'-'}</td></tr>`).join('');
+}
+async function updAppt(id,status){
+  const r=await api(`/appointments/${id}/status/`,{method:'PATCH',body:JSON.stringify({status})});
+  if(r&&r.ok) toast('Appointment updated');
+  else if(r){const e=await r.json();toast(extractError(e),'error')}
+  showPage(currentUser.role==='ADMIN'?'appointments':currentUser.role==='DOCTOR'?'doc-appointments':'pat-appointments');
+}
+
+async function loadPrescriptions(mc){
+  mc.innerHTML='<div class="page-header"><h2><i class="fas fa-prescription"></i>All Prescriptions</h2></div><div class="table-card"><table><thead><tr><th>ID</th><th>Appt#</th><th>Diagnosis</th><th>Medicines</th><th>Instructions</th><th>Date</th></tr></thead><tbody id="tbl"></tbody></table></div>';
+  const r=await api('/prescriptions/');if(!r)return;let d=await r.json();
+  const list=Array.isArray(d)?d:(d.results||[]);
+  const tb=document.getElementById('tbl');
+  if(!list.length){tb.innerHTML='<tr><td colspan="6"><div class="empty-state"><i class="fas fa-prescription"></i>No prescriptions</div></td></tr>';return}
+  tb.innerHTML=list.map(p=>`<tr><td>${p.id}</td><td>${p.appointment}</td><td>${p.diagnosis||'-'}</td><td>${fmtItems(p.items)}</td><td>${(p.instructions||'-').substring(0,40)}</td><td>${fmtDate(p.created_at)}</td></tr>`).join('');
+}
+
+async function loadMedicines(mc){
+  mc.innerHTML='<div class="page-header"><h2><i class="fas fa-pills"></i>Medicine Catalog</h2><button class="btn btn-primary btn-sm" onclick="openMedicineModal()"><i class="fas fa-plus"></i>Add Medicine</button></div><div class="table-card"><table><thead><tr><th>ID</th><th>Name</th><th>Generic</th><th>Category</th><th>Price</th><th>Tax%</th><th>Active</th><th>Actions</th></tr></thead><tbody id="tbl"></tbody></table></div>';
+  const r=await api('/medicines/');if(!r)return;const d=await r.json();
+  const list=Array.isArray(d)?d:(d.results||[]);const tb=document.getElementById('tbl');
+  if(!list.length){tb.innerHTML='<tr><td colspan="8"><div class="empty-state"><i class="fas fa-pills"></i>No medicines yet</div></td></tr>';return}
+  tb.innerHTML=list.map(m=>`<tr><td>${m.id}</td><td>${m.name}</td><td>${m.generic_name||'-'}</td><td><span class="badge badge-info">${m.category}</span></td><td>₹${m.price}</td><td>${m.tax_percent}%</td><td>${m.is_active?'<span class="badge badge-success">Yes</span>':'<span class="badge badge-danger">No</span>'}</td><td><button class="btn btn-sm btn-ghost" onclick="editMedicine(${m.id})"><i class="fas fa-edit"></i></button></td></tr>`).join('');
+}
+function openMedicineModal(med){
+  const t=med?'Edit Medicine':'Add Medicine';
+  openModal(t,`<div class="form-group"><label>Name</label><input id="m-mname" value="${med?.name||''}"></div><div class="form-group"><label>Generic Name</label><input id="m-mgen" value="${med?.generic_name||''}"></div><div class="form-group"><label>Category</label><select id="m-mcat">${['TABLET','CAPSULE','SYRUP','INJECTION','OINTMENT','DROPS','INHALER','SURGICAL','LAB_TEST','OTHER'].map(c=>`<option value="${c}" ${med?.category===c?'selected':''}>${c}</option>`).join('')}</select></div><div class="form-group"><label>Manufacturer</label><input id="m-mmfg" value="${med?.manufacturer||''}"></div><div class="form-group"><label>Price (₹)</label><input id="m-mprice" type="number" step="0.01" value="${med?.price||''}"></div><div class="form-group"><label>Tax %</label><input id="m-mtax" type="number" step="0.01" value="${med?.tax_percent??12}"></div>`,
+  async()=>{
+    const body={name:v('m-mname'),generic_name:v('m-mgen'),category:v('m-mcat'),manufacturer:v('m-mmfg'),price:v('m-mprice'),tax_percent:v('m-mtax')};
+    const r=med?await api(`/medicines/${med.id}/`,{method:'PATCH',body:JSON.stringify(body)}):await api('/medicines/',{method:'POST',body:JSON.stringify(body)});
+    if(r&&r.ok){toast(med?'Medicine updated':'Medicine added');closeModal();showPage('medicines')}else if(r){const e=await r.json();toast(extractError(e),'error')}
+  });
+}
+async function editMedicine(id){const r=await api(`/medicines/${id}/`);if(!r)return;const m=await r.json();openMedicineModal(m)}
+
+async function loadAdminSettings(mc){
+  mc.innerHTML='<div class="page-header"><h2><i class="fas fa-cog"></i>System Settings</h2></div><div style="max-width:500px" id="settings-form"><div style="text-align:center;padding:24px"><span class="loading"></span></div></div>';
+  const r=await api('/settings/');if(!r)return;const s=await r.json();
+  document.getElementById('settings-form').innerHTML=`
+    <div class="stat-card" style="margin-bottom:20px"><div class="label">Current Global Discount</div><div class="value">${s.discount_percent}%</div></div>
+    <div class="form-group"><label>Discount Percentage (%)</label><input id="s-disc" type="number" step="0.01" min="0" max="100" value="${s.discount_percent}"></div>
+    <p style="font-size:.78rem;color:var(--text3);margin-bottom:14px">This discount is applied to all auto-generated invoices (consultation fee + medicine total).</p>
+    <button class="btn btn-primary" onclick="saveSettings()"><i class="fas fa-save"></i> Save Settings</button>`;
+}
+async function saveSettings(){
+  const r=await api('/settings/',{method:'PUT',body:JSON.stringify({discount_percent:v('s-disc')})});
+  if(r&&r.ok)toast('Settings saved!');else if(r){const e=await r.json();toast(extractError(e),'error')}
+}
+
+async function loadInvoices(mc){
+  mc.innerHTML='<div class="page-header"><h2><i class="fas fa-file-invoice-dollar"></i>Invoices</h2></div><div class="table-card"><table><thead><tr><th>ID</th><th>Appt#</th><th>Consult</th><th>Meds</th><th>Tax</th><th>Disc%</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="tbl"></tbody></table></div>';
+  const r=await api('/invoices/');if(!r)return;const d=await r.json();const tb=document.getElementById('tbl');
+  const list=Array.isArray(d)?d:(d.results||[]);
+  if(!list.length){tb.innerHTML='<tr><td colspan="9"><div class="empty-state"><i class="fas fa-file-invoice-dollar"></i>No invoices yet. Invoices are auto-generated when a doctor prescribes.</div></td></tr>';return}
+  tb.innerHTML=list.map(i=>`<tr><td>${i.id}</td><td>${i.appointment}</td><td>₹${i.consultation_fee}</td><td>₹${i.medicine_total}</td><td>₹${i.tax}</td><td>${i.discount_percent}%</td><td><strong>₹${i.total_amount}</strong></td><td>${statusBadge(i.status)}</td><td>${i.status==='PENDING'?`<button class="btn btn-sm btn-success" onclick="markPaid(${i.id})">Mark Paid</button>`:'-'}</td></tr>`).join('');
+}
+async function markPaid(id){const r=await api(`/invoices/${id}/status/`,{method:'PATCH',body:JSON.stringify({status:'PAID',payment_method:'CASH'})});if(r&&r.ok)toast('Invoice paid');showPage(currentUser.role==='ADMIN'?'invoices':'pat-invoices')}
+
+// ============ DOCTOR PAGES ============
+
+async function loadDocAppointments(mc){
+  mc.innerHTML='<div class="page-header"><h2><i class="fas fa-calendar-check"></i>My Appointments</h2></div><div class="table-card"><table><thead><tr><th>ID</th><th>Patient</th><th>Start</th><th>End</th><th>Reason</th><th>Status</th><th>Actions</th></tr></thead><tbody id="tbl"></tbody></table></div>';
+  const r=await api('/appointments/');if(!r)return;const d=await r.json();const tb=document.getElementById('tbl');
+  const list=Array.isArray(d)?d:(d.results||[]);
+  if(!list.length){tb.innerHTML='<tr><td colspan="7"><div class="empty-state"><i class="fas fa-calendar"></i>No appointments assigned to you yet</div></td></tr>';return}
+  tb.innerHTML=list.map(a=>{
+    const pn=a.patient_name||'Patient';
+    const safeName=pn.replace(/'/g,"\\'");
+    let actions='-';
+    if(a.status==='SCHEDULED') actions=`<button class="btn btn-sm btn-success" onclick="updAppt(${a.id},'COMPLETED')">Complete</button> <button class="btn btn-sm btn-info" onclick="openPrescribeModal(${a.id},'${safeName}')">Prescribe</button>`;
+    else if(a.status==='COMPLETED') actions=`<button class="btn btn-sm btn-info" onclick="openPrescribeModal(${a.id},'${safeName}')">Prescribe</button>`;
+    return`<tr><td>${a.id}</td><td>${pn}</td><td>${fmtDate(a.start_time)}</td><td>${fmtDate(a.end_time)}</td><td>${(a.reason||'-').substring(0,30)}</td><td>${statusBadge(a.status)}</td><td>${actions}</td></tr>`;
+  }).join('');
+}
+
+let allMedicines=[];
+async function openPrescribeModal(apptId,patientName){
+  // Load medicines from DB
+  const mr=await api('/medicines/');if(!mr)return;
+  const md=await mr.json();allMedicines=Array.isArray(md)?md:(md.results||[]);
+  let prescribedMeds=[];
+  const buildMedRows=()=>prescribedMeds.map((pm,i)=>`<div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;padding:8px;background:var(--bg3);border-radius:8px"><span style="flex:1;font-size:.82rem">${pm.name} (₹${pm.price})</span><input style="width:50px" type="number" min="1" value="${pm.quantity}" onchange="prescribedMeds[${i}].quantity=+this.value"><input style="width:90px" placeholder="Dosage" value="${pm.dosage}" onchange="prescribedMeds[${i}].dosage=this.value"><input style="width:100px" placeholder="Frequency" value="${pm.frequency}" onchange="prescribedMeds[${i}].frequency=this.value"><button class="btn btn-sm btn-danger" onclick="prescribedMeds.splice(${i},1);document.getElementById('med-rows').innerHTML=buildMedRows()">✕</button></div>`).join('');
+  window.prescribedMeds=prescribedMeds;window.buildMedRows=buildMedRows;
+  openModal(`Prescribe for ${patientName}`,`<input type="hidden" id="m-appt" value="${apptId}"><div class="form-group"><label>Diagnosis</label><textarea id="m-diag" placeholder="Enter diagnosis"></textarea></div><div class="form-group"><label>Add Medicine from Database</label><select id="med-select" style="margin-bottom:8px"><option value="">-- Select a medicine --</option>${allMedicines.map(m=>`<option value="${m.id}">${m.name} (${m.category}) - ₹${m.price}</option>`).join('')}</select><button class="btn btn-sm btn-info" type="button" onclick="addMedRow()"><i class="fas fa-plus"></i> Add</button></div><div id="med-rows" style="margin-bottom:14px"></div><div class="form-group"><label>Instructions</label><textarea id="m-instr" placeholder="Take after meals, rest for 3 days..."></textarea></div>`,
+  async()=>{
+    if(!prescribedMeds.length){toast('Please add at least one medicine','error');return}
+    const medicines=prescribedMeds.map(pm=>({medicine:pm.id,quantity:pm.quantity,dosage:pm.dosage,frequency:pm.frequency,duration_days:pm.duration||7}));
+    const r=await api('/prescriptions/',{method:'POST',body:JSON.stringify({appointment:+v('m-appt'),diagnosis:v('m-diag'),medicines,instructions:v('m-instr')})});
+    if(r&&r.ok){toast('Prescription created & invoice generated!');closeModal();showPage('doc-prescriptions')}else if(r){const e=await r.json();toast(extractError(e),'error')}
+  });
+}
+function addMedRow(){
+  const sel=document.getElementById('med-select');
+  const id=+sel.value;if(!id)return;
+  const med=allMedicines.find(m=>m.id===id);if(!med)return;
+  if(prescribedMeds.find(p=>p.id===id)){toast('Medicine already added','error');return}
+  prescribedMeds.push({id:med.id,name:med.name,price:med.price,quantity:1,dosage:'',frequency:'',duration:7});
+  document.getElementById('med-rows').innerHTML=buildMedRows();
+  sel.value='';
+}
+
+async function loadDocPrescriptions(mc){
+  mc.innerHTML='<div class="page-header"><h2><i class="fas fa-prescription"></i>My Prescriptions</h2></div><div class="table-card"><table><thead><tr><th>ID</th><th>Appt#</th><th>Diagnosis</th><th>Medicines</th><th>Instructions</th><th>Date</th></tr></thead><tbody id="tbl"></tbody></table></div>';
+  const r=await api('/prescriptions/');if(!r)return;let d=await r.json();
+  const list=Array.isArray(d)?d:(d.results||[]);
+  const tb=document.getElementById('tbl');
+  if(!list.length){tb.innerHTML='<tr><td colspan="6"><div class="empty-state"><i class="fas fa-prescription"></i>No prescriptions yet. Prescribe from Appointments page.</div></td></tr>';return}
+  tb.innerHTML=list.map(p=>`<tr><td>${p.id}</td><td>${p.appointment}</td><td>${p.diagnosis||'-'}</td><td>${fmtItems(p.items)}</td><td>${(p.instructions||'-').substring(0,40)}</td><td>${fmtDate(p.created_at)}</td></tr>`).join('');
+}
+
+// ============ PATIENT PAGES ============
+
+let doctorsList=[];
+async function loadPatBook(mc){
+  mc.innerHTML='<div class="page-header"><h2><i class="fas fa-calendar-plus"></i>Book an Appointment</h2></div><div id="doctor-list"><div style="text-align:center;padding:32px"><span class="loading"></span> Loading doctors...</div></div>';
+  const r=await api('/doctors/');
+  if(!r)return;
+  const data=await r.json();
+  doctorsList=Array.isArray(data)?data:(data.results||[]);
+  if(!doctorsList.length){document.getElementById('doctor-list').innerHTML='<div class="empty-state"><i class="fas fa-user-md"></i>No doctors available at the moment</div>';return}
+  document.getElementById('doctor-list').innerHTML=`<p style="color:var(--text2);margin-bottom:16px;font-size:.9rem">Select a doctor to book your appointment:</p><div class="doctor-grid">${doctorsList.map(d=>`
+    <div class="doctor-card" id="dc-${d.id}" onclick="selectDoctor(${d.id})">
+      <h4><i class="fas fa-user-md" style="color:var(--primary-h);margin-right:6px"></i>${d.user_name||'Doctor'}</h4>
+      <div class="spec">${d.specialization}</div>
+      <div class="details"><i class="fas fa-award"></i> ${d.years_experience||0} yrs experience &nbsp;|&nbsp; <i class="fas fa-rupee-sign"></i> ₹${d.consultation_fee||0}</div>
+    </div>`).join('')}</div><div id="booking-form" style="display:none;margin-top:20px;max-width:500px">
+    <h3 style="margin-bottom:16px;color:var(--primary-h)"><i class="fas fa-calendar-alt"></i> Appointment Details</h3>
+    <div class="form-group"><label>Date & Time</label><input id="b-start" type="datetime-local"></div>
+    <div class="form-group"><label>Duration (minutes)</label><select id="b-dur"><option value="15">15 min</option><option value="30" selected>30 min</option><option value="45">45 min</option><option value="60">60 min</option></select></div>
+    <div class="form-group"><label>Reason for Visit</label><textarea id="b-reason" placeholder="Describe your symptoms or reason..."></textarea></div>
+    <button class="btn btn-primary" id="book-btn" onclick="bookAppointment()"><i class="fas fa-check"></i> Confirm Booking</button>
+  </div>`;
+}
+
+let selectedDoctorId=null;
+function selectDoctor(id){
+  selectedDoctorId=id;
+  document.querySelectorAll('.doctor-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('dc-'+id).classList.add('selected');
+  document.getElementById('booking-form').style.display='block';
+}
+
+async function bookAppointment(){
+  if(!selectedDoctorId){toast('Please select a doctor','error');return}
+  const start=v('b-start');
+  if(!start){toast('Please select a date and time','error');return}
+  const dur=parseInt(v('b-dur'));
+  const startDt=new Date(start);
+  const endDt=new Date(startDt.getTime()+dur*60000);
+
+  // Validate date is in the future
+  if(startDt<=new Date()){toast('Please select a future date and time','error');return}
+
+  // Disable button to prevent double-click
+  const btn=document.getElementById('book-btn');
+  btn.disabled=true;btn.innerHTML='<span class="loading"></span> Booking...';
+
+  try{
+    // Ensure patient profile exists
+    const patRes=await api('/patients/');
+    if(!patRes)return;
+    let patData=await patRes.json();
+    const patList=Array.isArray(patData)?patData:(patData.results?patData.results:[]);
+
+    if(!patList.length||patList[0]?.detail){
+      // Auto-create patient profile for this user
+      const cpRes=await api('/patients/',{method:'POST',body:JSON.stringify({})});
+      if(!cpRes||!cpRes.ok){
+        toast('Please complete your profile first','error');
+        showPage('pat-profile');
+        return;
+      }
+    }
+
+    // Create the appointment — patient is auto-assigned by backend
+    const body={doctor:selectedDoctorId,start_time:startDt.toISOString(),end_time:endDt.toISOString(),reason:v('b-reason')};
+    const r=await api('/appointments/',{method:'POST',body:JSON.stringify(body)});
+
+    if(!r)return;
+    if(r.ok){
+      toast('Appointment booked successfully!');
+      selectedDoctorId=null;
+      showPage('pat-appointments');
+    } else {
+      const e=await r.json();
+      toast(extractError(e),'error');
+    }
+  }catch(err){
+    toast('Failed to book appointment: '+err.message,'error');
+  }finally{
+    if(document.getElementById('book-btn')){
+      btn.disabled=false;btn.innerHTML='<i class="fas fa-check"></i> Confirm Booking';
+    }
+  }
+}
+
+async function loadPatAppointments(mc){
+  mc.innerHTML='<div class="page-header"><h2><i class="fas fa-calendar-check"></i>My Appointments</h2></div><div class="table-card"><table><thead><tr><th>ID</th><th>Doctor</th><th>Date</th><th>Reason</th><th>Status</th></tr></thead><tbody id="tbl"></tbody></table></div>';
+  const r=await api('/appointments/');if(!r)return;const d=await r.json();const tb=document.getElementById('tbl');
+  const list=Array.isArray(d)?d:(d.results||[]);
+  if(!list.length){tb.innerHTML='<tr><td colspan="5"><div class="empty-state"><i class="fas fa-calendar"></i>No appointments yet. Book one from the sidebar!</div></td></tr>';return}
+  tb.innerHTML=list.map(a=>`<tr><td>${a.id}</td><td>${a.doctor_name||'-'}</td><td>${fmtDate(a.start_time)}</td><td>${a.reason||'-'}</td><td>${statusBadge(a.status)}</td></tr>`).join('');
+}
+
+async function loadPatPrescriptions(mc){
+  mc.innerHTML='<div class="page-header"><h2><i class="fas fa-prescription"></i>My Prescriptions</h2></div><div class="table-card"><table><thead><tr><th>ID</th><th>Appt#</th><th>Diagnosis</th><th>Medicines</th><th>Instructions</th><th>Date</th></tr></thead><tbody id="tbl"></tbody></table></div>';
+  const r=await api('/prescriptions/');if(!r)return;let d=await r.json();
+  const list=Array.isArray(d)?d:(d.results||[]);
+  const tb=document.getElementById('tbl');
+  if(!list.length){tb.innerHTML='<tr><td colspan="6"><div class="empty-state"><i class="fas fa-prescription"></i>No prescriptions yet</div></td></tr>';return}
+  tb.innerHTML=list.map(p=>`<tr><td>${p.id}</td><td>${p.appointment}</td><td>${p.diagnosis||'-'}</td><td>${fmtItems(p.items)}</td><td>${p.instructions||'-'}</td><td>${fmtDate(p.created_at)}</td></tr>`).join('');
+}
+
+async function loadPatInvoices(mc){
+  mc.innerHTML='<div class="page-header"><h2><i class="fas fa-file-invoice-dollar"></i>My Invoices</h2></div><div class="table-card"><table><thead><tr><th>ID</th><th>Appt#</th><th>Consult</th><th>Meds</th><th>Tax</th><th>Disc</th><th>Total</th><th>Status</th><th>Action</th></tr></thead><tbody id="tbl"></tbody></table></div>';
+  const r=await api('/invoices/');if(!r)return;const d=await r.json();const tb=document.getElementById('tbl');
+  const list=Array.isArray(d)?d:(d.results||[]);
+  if(!list.length){tb.innerHTML='<tr><td colspan="9"><div class="empty-state"><i class="fas fa-file-invoice-dollar"></i>No invoices yet</div></td></tr>';return}
+  tb.innerHTML=list.map(i=>`<tr><td>${i.id}</td><td>${i.appointment}</td><td>\u20b9${i.consultation_fee}</td><td>\u20b9${i.medicine_total}</td><td>\u20b9${i.tax}</td><td>${i.discount_percent}% (-\u20b9${i.discount_amount})</td><td><strong>\u20b9${i.total_amount}</strong></td><td>${statusBadge(i.status)}</td><td>${i.status==='PENDING'?`<button class="btn btn-sm btn-success" onclick="openPayModal(${i.id},${i.total_amount})"><i class="fas fa-credit-card"></i> Pay Now</button>`:'<span class="badge badge-success"><i class="fas fa-check"></i> Paid</span>'}</td></tr>`).join('');
+}
+function openPayModal(invId,amount){
+  openModal('Pay Invoice',`<div class="stat-card" style="margin-bottom:18px;text-align:center"><div class="label">Amount Due</div><div class="value">\u20b9${amount}</div></div><div class="form-group"><label>Payment Method</label><select id="m-paymethod"><option value="UPI">UPI</option><option value="CARD">Credit/Debit Card</option><option value="NET_BANKING">Net Banking</option><option value="CASH">Cash</option><option value="WALLET">Wallet</option></select></div><p style="font-size:.78rem;color:var(--text3);margin-top:8px"><i class="fas fa-lock" style="margin-right:4px"></i>Your payment is secure and encrypted.</p>`,
+  async()=>{
+    const method=v('m-paymethod');
+    const r=await api('/invoices/'+invId+'/status/',{method:'PATCH',body:JSON.stringify({status:'PAID',payment_method:method})});
+    if(r&&r.ok){toast('Payment successful! Invoice marked as Paid.');closeModal();showPage('pat-invoices')}else if(r){const e=await r.json();toast(extractError(e),'error')}
+  });
+}
+
+async function loadPatProfile(mc){
+  mc.innerHTML='<div class="page-header"><h2><i class="fas fa-user-edit"></i>My Profile</h2></div><div style="max-width:500px" id="profile-form"><div style="text-align:center;padding:24px"><span class="loading"></span></div></div>';
+  let profile=null;
+  try{
+    const r=await api('/patients/');
+    if(r&&r.ok){
+      let d=await r.json();
+      const list=Array.isArray(d)?d:(d.results?d.results:[]);
+      if(list.length&&!list[0]?.detail) profile=list[0];
+    }
+  }catch(e){}
+  const pf=document.getElementById('profile-form');
+  pf.innerHTML=`
+    <div class="form-group"><label>Date of Birth</label><input id="p-dob" type="date" value="${profile?.date_of_birth||''}"></div>
+    <div class="form-group"><label>Gender</label><select id="p-gender"><option value="">-</option><option value="MALE" ${profile?.gender==='MALE'?'selected':''}>Male</option><option value="FEMALE" ${profile?.gender==='FEMALE'?'selected':''}>Female</option><option value="OTHER" ${profile?.gender==='OTHER'?'selected':''}>Other</option></select></div>
+    <div class="form-group"><label>Blood Group</label><input id="p-blood" value="${profile?.blood_group||''}" maxlength="5" placeholder="e.g. O+"></div>
+    <div class="form-group"><label>Address</label><textarea id="p-addr">${profile?.address||''}</textarea></div>
+    <div class="form-group"><label>Emergency Contact</label><input id="p-emg" value="${profile?.emergency_contact||''}" placeholder="+91 9876543210"></div>
+    <button class="btn btn-primary" onclick="saveProfile(${profile?.id||0})"><i class="fas fa-save"></i> ${profile?'Update':'Create'} Profile</button>`;
+}
+async function saveProfile(pid){
+  const data={date_of_birth:v('p-dob')||null,gender:v('p-gender'),blood_group:v('p-blood'),address:v('p-addr'),emergency_contact:v('p-emg')};
+  let r;
+  if(pid){r=await api(`/patients/${pid}/`,{method:'PATCH',body:JSON.stringify(data)})}
+  else{r=await api('/patients/',{method:'POST',body:JSON.stringify(data)})}
+  if(r&&r.ok){toast('Profile saved!')}else if(r){const e=await r.json();toast(extractError(e),'error')}
+}
+
+// ====== HELPERS ======
+function fmtItems(items){
+  if(!items||!Array.isArray(items)||!items.length)return'-';
+  return items.map(x=>`${x.medicine_name||'?'} x${x.quantity} (₹${x.unit_price})`).join(', ');
+}
+function openModal(title,html,onSubmit){
+  document.querySelector('#modal-title span').textContent=title;
+  document.getElementById('modal-body').innerHTML=html;
+  document.getElementById('modal-submit').onclick=onSubmit;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('show')}
+function v(id){const el=document.getElementById(id);return el?el.value:''}
+
+// ====== INIT ======
+// On page load: if we have a stored token, try to enter app (token will be validated)
+if(token){enterApp()}
+</script>
+</body>
+</html>
