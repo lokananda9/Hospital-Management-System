@@ -11,17 +11,21 @@ from medicines.models import Medicine, SystemSettings
 
 
 def seed():
+    print("--- Seeding database ---")
+
     # --- Users ---
     if not User.objects.filter(email="admin@example.com").exists():
         admin = User.objects.create_superuser(
-            email="admin@example.com", password="admin_password",
+            email="admin@example.com", password="admin123",
             full_name="Admin User", role="ADMIN"
         )
         print(f"  Created admin: {admin.email}")
+    else:
+        print("  Admin already exists")
 
     if not User.objects.filter(email="doctor@example.com").exists():
         doc_user = User.objects.create_user(
-            email="doctor@example.com", password="doctor_password",
+            email="doctor@example.com", password="doctor123",
             full_name="Dr. Priya Sharma", role="DOCTOR"
         )
         Doctor.objects.create(
@@ -29,10 +33,12 @@ def seed():
             license_number="MED001", years_experience=10, consultation_fee=500
         )
         print(f"  Created doctor: {doc_user.email}")
+    else:
+        print("  Doctor already exists")
 
     if not User.objects.filter(email="doctor2@example.com").exists():
         doc_user2 = User.objects.create_user(
-            email="doctor2@example.com", password="doctor_password",
+            email="doctor2@example.com", password="doctor123",
             full_name="Dr. Rahul Verma", role="DOCTOR"
         )
         Doctor.objects.create(
@@ -40,14 +46,18 @@ def seed():
             license_number="MED002", years_experience=8, consultation_fee=600
         )
         print(f"  Created doctor: {doc_user2.email}")
+    else:
+        print("  Doctor2 already exists")
 
     if not User.objects.filter(email="patient@example.com").exists():
         pat_user = User.objects.create_user(
-            email="patient@example.com", password="patient_password",
+            email="patient@example.com", password="patient123",
             full_name="Anita Patel", role="PATIENT"
         )
         Patient.objects.create(user=pat_user)
         print(f"  Created patient: {pat_user.email}")
+    else:
+        print("  Patient already exists")
 
     # --- Medicines ---
     meds = [
@@ -61,11 +71,6 @@ def seed():
         ("Cough Syrup", "Dextromethorphan", "SYRUP", "Dabur", 85, 18),
         ("Betadine Ointment", "Povidone-Iodine", "OINTMENT", "Win-Medicare", 65, 12),
         ("Eye Drops", "Ofloxacin", "DROPS", "Alcon", 90, 12),
-        ("Vitamin D3 1000IU", "Cholecalciferol", "TABLET", "HealthKart", 150, 5),
-        ("Blood Test - CBC", "", "LAB_TEST", "", 300, 0),
-        ("X-Ray Chest", "", "LAB_TEST", "", 500, 0),
-        ("Insulin Injection", "Insulin", "INJECTION", "Novo Nordisk", 450, 5),
-        ("Salbutamol Inhaler", "Salbutamol", "INHALER", "Cipla", 180, 12),
     ]
     created = 0
     for name, gen, cat, mfg, price, tax in meds:
@@ -75,8 +80,7 @@ def seed():
         )
         if c:
             created += 1
-    if created:
-        print(f"  Created {created} medicines")
+    print(f"  Medicines: {created} created, {Medicine.objects.count()} total")
 
     # --- Default discount ---
     s = SystemSettings.get_settings()
