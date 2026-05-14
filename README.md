@@ -1,115 +1,139 @@
-# Hospital Management System (MVP)
+# Hospital Management System
 
-Backend-only Hospital Management System built with Django and Django REST Framework.
+![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Django](https://img.shields.io/badge/Django-REST_Framework-092E20?style=for-the-badge&logo=django&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-Cache-DC382D?style=for-the-badge&logo=redis&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+
+A production-style hospital management backend built with Django REST Framework. It handles role-based users, doctors, patients, appointments, prescriptions, invoices, dashboard analytics, Dockerized services, and OpenAPI documentation.
+
+## Screenshot / Preview
+
+![Hospital API Preview](assets/screenshots/api-preview.svg)
+
+## Recruiter Highlights
+
+- REST API architecture with Django REST Framework
+- JWT authentication and role-based access control
+- Real healthcare domain modeling: patients, doctors, appointments, billing, prescriptions
+- Docker Compose setup with PostgreSQL and Redis
+- OpenAPI/Swagger documentation for API exploration
+- Testable backend structure with deployment-ready configuration
 
 ## Features
-- JWT authentication with role-based access: `ADMIN`, `DOCTOR`, `PATIENT`
-- User, doctor, patient profile management
-- Appointment booking with doctor overlap validation
+
+- Authentication with SimpleJWT
+- Roles: `ADMIN`, `DOCTOR`, `PATIENT`
+- Doctor and patient profile management
+- Appointment booking with overlap validation
 - Prescription and invoice modules
-- Dashboard analytics with Redis cache
-- OpenAPI schema + Swagger UI
-- Dockerized local environment and Render deployment blueprint
+- Dashboard overview analytics with Redis cache
+- Swagger UI and OpenAPI JSON schema
+- Native SQLite mode for quick local setup
+- Docker mode for PostgreSQL + Redis environment
+- Render deployment blueprint
 
-## Stack
-- Django, DRF, SimpleJWT
-- PostgreSQL
-- Redis
-- Gunicorn + Whitenoise
-- Docker / Docker Compose
+## Tech Stack
 
-## Choose Run Mode
-- If Docker is unavailable on your machine, use native mode first.
-- Native mode uses SQLite and starts fastest.
-- Docker mode uses PostgreSQL + Redis services from `docker-compose.yml`.
+| Layer | Tools |
+| --- | --- |
+| Backend | Django, Django REST Framework |
+| Auth | SimpleJWT |
+| Database | SQLite for native dev, PostgreSQL for Docker/prod |
+| Cache | Redis, django-redis |
+| API Docs | drf-spectacular, Swagger UI |
+| Deployment | Gunicorn, Whitenoise, Docker, Render |
 
-## Native Quick Start (Recommended First)
-1. Run:
-   - `scripts\run_native.cmd`
-2. App URL:
-   - `http://127.0.0.1:8000/`
-3. Docs URL:
-   - `http://127.0.0.1:8000/api/docs/`
+## Getting Started
 
-What this script does:
-- Creates `.env` from `.env.native.example` if missing
-- Creates and uses project-local virtual environment `.venv`
-- Installs requirements in `.venv`
-- Runs preflight checks
-- Applies migrations
-- Starts Django server on `127.0.0.1:8000`
-- Root path `/` redirects to `/api/docs/`
+### Option 1: Native Quick Start
 
-Optional:
-- Setup only, no server:
-  - `scripts\run_native.cmd --no-server`
+Use this when Docker is not installed.
 
-## Docker Quick Start
-1. Make sure Docker Desktop is installed and running.
-2. Verify:
-   - `docker --version`
-   - `docker compose version`
-3. Run:
-   - `scripts\run_docker.cmd`
-4. App URL:
-   - `http://127.0.0.1:8000/`
+```bash
+git clone https://github.com/lokananda9/Hospital-Management-System.git
+cd Hospital-Management-System
+scripts\run_native.cmd
+```
 
-What this script does:
-- Verifies Docker and Compose availability
-- Creates `.env` from `.env.docker.example` if missing
-- Runs docker preflight checks
-- Starts containers with build
+App URL:
 
-Optional:
-- Validate only, no container startup:
-  - `scripts\run_docker.cmd --no-up`
+```text
+http://127.0.0.1:8000/
+```
 
-## Environment Templates
-- Native: `.env.native.example`
-- Docker: `.env.docker.example`
-- Compatibility fallback: `.env.example`
+Swagger docs:
 
-## Manual Commands
-- Native preflight:
-  - `.venv\Scripts\python.exe scripts\preflight.py --mode native --python-executable ".venv\Scripts\python.exe"`
-- Docker preflight:
-  - `python scripts\preflight.py --mode docker`
-- Tests:
-  - `.venv\Scripts\python.exe manage.py test`
-- Strict native audit:
-  - `scripts\audit_native.cmd`
+```text
+http://127.0.0.1:8000/api/docs/
+```
 
-## Troubleshooting
-| Symptom | Cause | Fix |
-|---|---|---|
-| `'docker' is not recognized` | Docker Desktop is not installed or not on PATH | Install Docker Desktop, restart terminal, run `docker --version` |
-| Startup fails with missing `.env` | Runtime expects environment file | Copy correct template: `copy .env.native.example .env` or `copy .env.docker.example .env` |
-| Native mode fails with DB host `db` | Docker DB URL used outside Docker | Set `DATABASE_URL=sqlite:///db.sqlite3` in `.env` for native mode |
-| Docker preflight fails with sqlite/redis empty values | Native `.env` used for Docker mode | Replace `.env` with `copy /Y .env.docker.example .env` then rerun `scripts\run_docker.cmd` |
-| Port `8000` already in use | Another process is using it | Stop the process or run `python manage.py runserver 127.0.0.1:8001` |
+### Option 2: Docker Quick Start
 
-## API Docs
-- Swagger UI: `/api/docs/`
-- OpenAPI JSON: `/api/schema/`
+```bash
+git clone https://github.com/lokananda9/Hospital-Management-System.git
+cd Hospital-Management-System
+scripts\run_docker.cmd
+```
 
-## Key Endpoints
-- `POST /api/v1/auth/login/`
-- `POST /api/v1/auth/refresh/`
-- `GET /api/v1/auth/me/`
-- `POST/GET /api/v1/users/`
-- `PATCH /api/v1/users/{id}/status/`
-- `POST/GET /api/v1/doctors/`
-- `GET/PATCH /api/v1/doctors/{id}/`
-- `POST /api/v1/patients/`
-- `GET/PATCH /api/v1/patients/{id}/`
-- `POST/GET /api/v1/appointments/`
-- `PATCH /api/v1/appointments/{id}/status/`
-- `POST /api/v1/prescriptions/`
-- `GET/PATCH /api/v1/prescriptions/{id}/`
-- `POST/GET /api/v1/invoices/`
-- `PATCH /api/v1/invoices/{id}/status/`
-- `GET /api/v1/dashboard/overview/`
+Docker mode uses PostgreSQL and Redis from `docker-compose.yml`.
 
-## Deployment
+## Manual Setup
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+copy .env.native.example .env
+python manage.py migrate
+python manage.py runserver 127.0.0.1:8000
+```
+
+## Run Tests
+
+```bash
+.venv\Scripts\python.exe manage.py test
+```
+
+## Key API Endpoints
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| POST | `/api/v1/auth/login/` | Login |
+| POST | `/api/v1/auth/refresh/` | Refresh JWT |
+| GET | `/api/v1/auth/me/` | Current user |
+| GET/POST | `/api/v1/users/` | User management |
+| GET/POST | `/api/v1/doctors/` | Doctor records |
+| GET/POST | `/api/v1/appointments/` | Appointment workflow |
+| GET/POST | `/api/v1/prescriptions/` | Prescriptions |
+| GET/POST | `/api/v1/invoices/` | Billing |
+| GET | `/api/v1/dashboard/overview/` | Analytics overview |
+
+## Project Structure
+
+```text
+accounts/        authentication and user roles
+appointments/    appointment booking workflow
+billing/         invoice and payment status logic
+doctors/         doctor profiles
+patients/        patient profiles
+prescriptions/   prescriptions and medicines
+analytics/       dashboard overview data
+config/          Django settings and deployment config
+scripts/         preflight, native, and Docker helpers
+```
+
+## Deployment Notes
+
 - Render blueprint: `render.yaml`
-- Set `DJANGO_SETTINGS_MODULE=config.prod` in production.
+- Production settings module: `config.prod`
+- Use PostgreSQL and Redis in production
+- Keep secrets in environment variables, not committed files
+
+## Future Improvements
+
+- Add GitHub Actions CI
+- Add frontend dashboard
+- Add seed demo screenshots from a running environment
+- Expand API integration tests
